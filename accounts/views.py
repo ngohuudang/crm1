@@ -14,7 +14,7 @@ from matplotlib.style import context
 from .models import *
 from .forms import OrderForm, CreateUserForm
 from .filters import OrderFilter
-
+from .decorators import unauthenticated_user, allowed_users, admin_only
 
 def registerPage(request):
     if request.user.is_authenticated:
@@ -52,6 +52,18 @@ def logoutUser(request):
 	logout(request)
 	return redirect('login')
 
+
+def userPage(request):
+	context = {}
+	return render(request, 'accounts/user.html', context)
+
+
+@login_required(login_url='login')
+@allowed_users(allowed_roles=['admin'])
+def products(request):
+	products = Product.objects.all()
+
+	return render(request, 'accounts/products.html', {'products':products})
 
 @login_required(login_url='login')
 def home(request):
